@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "vitest run"
+    "lint": "eslint src",
+    "test": "vitest run",
+    "typecheck": "tsc -p jsconfig.json --noEmit"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

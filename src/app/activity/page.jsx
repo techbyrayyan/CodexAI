@@ -9,11 +9,11 @@ import { formatTimestamp, formatDate, cn } from "@/lib/utils";
 
 export default function FullActivityPage() {
   const [category, setCategory] = React.useState("all");
-  const [events, setEvents] = React.useState([]);
+  const events = React.useMemo(
+    () => activityLogger.getEvents(50, category === "all" ? undefined : category),
+    [category]
+  );
 
-  React.useEffect(() => {
-    setEvents(activityLogger.getEvents(50, category === "all" ? undefined : category));
-  }, [category]);
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">

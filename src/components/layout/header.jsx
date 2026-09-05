@@ -13,9 +13,6 @@ export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
 
   return (
     <header className="h-16 border-b border-zinc-850/80 bg-black/80 backdrop-blur-xl px-4 md:px-6 flex items-center justify-between z-20 shrink-0">
@@ -74,6 +71,7 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setMobileOpen(false)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                     isActive
