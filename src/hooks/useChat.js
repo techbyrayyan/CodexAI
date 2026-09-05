@@ -8,7 +8,7 @@ const initialMessages = [
     id: "msg-001",
     role: "assistant",
     content: "JARVIS Core initialized in Phase 1 architecture mode. Command HUD and visualizer online. All systems nominal.",
-    timestamp: Date.now() - 1000 * 60 * 3,
+    timestamp: 1725528000000,
     status: "completed",
   },
 ];

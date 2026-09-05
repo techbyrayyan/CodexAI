@@ -6,11 +6,22 @@ export function cn(...inputs) {
 }
 
 export function formatTimestamp(date) {
+  if (!date) return "--:--:--";
   const d = new Date(date);
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  if (isNaN(d.getTime())) return "--:--:--";
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const seconds = String(d.getSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
 }
 
 export function formatDate(date) {
+  if (!date) return "";
   const d = new Date(date);
-  return d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+  if (isNaN(d.getTime())) return "";
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = months[d.getMonth()];
+  const day = d.getDate();
+  const year = d.getFullYear();
+  return `${month} ${day}, ${year}`;
 }

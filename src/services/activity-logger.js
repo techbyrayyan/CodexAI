@@ -1,3 +1,5 @@
+const BASE_TIME = 1725528000000;
+
 const initialEvents = [
   {
     id: "evt-001",
@@ -5,7 +7,7 @@ const initialEvents = [
     title: "JARVIS Core Initialized",
     description: "Core kernel and state machine booted in Phase 1 mode.",
     level: "success",
-    timestamp: Date.now() - 1000 * 60 * 8,
+    timestamp: BASE_TIME - 1000 * 60 * 8,
   },
   {
     id: "evt-002",
@@ -13,7 +15,7 @@ const initialEvents = [
     title: "Interface Shell Mounted",
     description: "High-density HUD and responsive layout activated.",
     level: "info",
-    timestamp: Date.now() - 1000 * 60 * 5,
+    timestamp: BASE_TIME - 1000 * 60 * 5,
   },
   {
     id: "evt-003",
@@ -21,7 +23,7 @@ const initialEvents = [
     title: "Security Sandbox Verified",
     description: "Tool permissions locked. External command guards operational.",
     level: "success",
-    timestamp: Date.now() - 1000 * 60 * 2,
+    timestamp: BASE_TIME - 1000 * 60 * 2,
   },
   {
     id: "evt-004",
@@ -29,7 +31,7 @@ const initialEvents = [
     title: "System Ready",
     description: "Command Center standing by for user instructions.",
     level: "info",
-    timestamp: Date.now() - 1000 * 20,
+    timestamp: BASE_TIME - 1000 * 20,
   },
 ];
 

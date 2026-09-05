@@ -85,7 +85,7 @@ export function ActivityPanel({ className }) {
                   <span className="font-medium text-zinc-200 truncate">
                     {evt.title}
                   </span>
-                  <span className="text-[10px] font-mono text-zinc-500 shrink-0">
+                  <span suppressHydrationWarning className="text-[10px] font-mono text-zinc-500 shrink-0">
                     {formatTimestamp(evt.timestamp)}
                   </span>
                 </div>

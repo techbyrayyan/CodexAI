@@ -88,7 +88,7 @@ export function ConversationPanel({
                     <span className="font-mono font-semibold text-[10px] tracking-wider uppercase text-zinc-400">
                       {isUser ? "Operator" : "JARVIS Core"}
                     </span>
-                    <span className="text-[10px] font-mono text-zinc-500">
+                    <span suppressHydrationWarning className="text-[10px] font-mono text-zinc-500">
                       {formatTimestamp(msg.timestamp)}
                     </span>
                   </div>

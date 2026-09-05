@@ -80,9 +80,9 @@ export default function FullActivityPage() {
                 </div>
 
                 <div className="flex items-center gap-3 self-end md:self-center font-mono text-[11px] text-zinc-500">
-                  <span>{formatDate(evt.timestamp)}</span>
+                  <span suppressHydrationWarning>{formatDate(evt.timestamp)}</span>
                   <span>•</span>
-                  <span>{formatTimestamp(evt.timestamp)}</span>
+                  <span suppressHydrationWarning>{formatTimestamp(evt.timestamp)}</span>
                   <Badge variant={evt.level === "success" ? "emerald" : "secondary"}>
                     {evt.level.toUpperCase()}
                   </Badge>
