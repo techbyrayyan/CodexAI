@@ -51,7 +51,7 @@ export function Header() {
         <span className="text-zinc-700">•</span>
         <div className="flex items-center gap-2">
           <span className="text-zinc-500">STAGE:</span>
-          <span className="text-zinc-400">PHASE 1 FOUNDATION</span>
+          <span className="text-emerald-400">PHASE 2 REAL AI BRAIN</span>
         </div>
       </div>
 

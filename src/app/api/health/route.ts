@@ -8,8 +8,8 @@ export async function GET() {
   return NextResponse.json(
     {
       status: health.overall,
-      phase: "Phase 1: Project Foundation & Architecture",
-      version: "1.0.0",
+      phase: "Phase 2: Real AI Brain & OpenAI Agent Integration",
+      version: "1.1.0",
       timestamp: health.timestamp,
       subsystems: health.subsystems,
       database: {

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bot, User, CheckCheck, Terminal } from "lucide-react";
+import { Bot, User, CheckCheck, Terminal, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { JarvisState } from "@/ai/types";
@@ -12,7 +12,7 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
-  status: "delivered" | "processing" | "completed";
+  status: "delivered" | "processing" | "completed" | "error";
 }
 
 interface ConversationPanelProps {
@@ -45,7 +45,7 @@ export function ConversationPanel({
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="emerald" className="text-[10px] py-0 px-2">
-            SIMULATION MODE
+            AI ENGINE ONLINE
           </Badge>
         </div>
       </CardHeader>
@@ -99,6 +99,8 @@ export function ConversationPanel({
                     "max-w-[80%] rounded-xl p-3 border",
                     isUser
                       ? "bg-zinc-900 border-zinc-800 text-zinc-200"
+                      : msg.status === "error"
+                      ? "bg-rose-950/30 border-rose-900/60 text-rose-200 shadow-sm"
                       : "bg-zinc-950/90 border-zinc-800/90 text-zinc-300 shadow-sm"
                   )}
                 >
@@ -114,8 +116,17 @@ export function ConversationPanel({
                   <p className="whitespace-pre-wrap">{msg.content}</p>
 
                   <div className="mt-2 flex items-center justify-end gap-1.5 text-[10px] font-mono text-zinc-500">
-                    <CheckCheck className="h-3 w-3 text-emerald-500" />
-                    <span>{msg.status}</span>
+                    {msg.status === "error" ? (
+                      <>
+                        <AlertCircle className="h-3 w-3 text-rose-400" />
+                        <span className="text-rose-400">failed</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCheck className="h-3 w-3 text-emerald-500" />
+                        <span>{msg.status}</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,3 +1,5 @@
+import { env } from "@/config/env";
+
 export type SubsystemStatusCode = "READY" | "NOT_CONNECTED" | "COMING_SOON" | "DEGRADED" | "ERROR";
 
 export interface SubsystemStatus {
@@ -18,11 +20,11 @@ export interface FullSystemHealth {
 export class SystemStatusService {
   /**
    * Returns the exact, truthful operational status of all JARVIS subsystems.
-   * Phase 1 clearly indicates that core foundation is ready, while dependent
-   * external engines are disconnected or coming soon.
+   * Phase 2 reflects live AI engine status while maintaining honesty on deferred features.
    */
   static getSystemHealth(): FullSystemHealth {
     const now = Date.now();
+    const isAiConfigured = Boolean(env.OPENAI_API_KEY && env.OPENAI_API_KEY.trim().length > 0);
 
     const subsystems: SubsystemStatus[] = [
       {
@@ -36,9 +38,11 @@ export class SystemStatusService {
       {
         id: "ai_engine",
         name: "AI Engine",
-        code: "NOT_CONNECTED",
-        label: "Not Connected",
-        description: "OpenAI Agents SDK and LLM reasoning pipeline (Phase 2).",
+        code: isAiConfigured ? "READY" : "NOT_CONNECTED",
+        label: isAiConfigured ? "OpenAI Connected" : "Not Configured",
+        description: isAiConfigured
+          ? `OpenAI conversational reasoning engine active (${env.OPENAI_MODEL}).`
+          : "Set OPENAI_API_KEY in server environment to enable live AI reasoning.",
         lastChecked: now,
       },
       {

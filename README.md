@@ -1,4 +1,4 @@
-# JARVIS AI Assistant — Phase 1: Project Foundation & Architecture
+# JARVIS AI Assistant — Phase 2: Real AI Brain & OpenAI Agent Integration
 
 > An enterprise-grade, desktop-first personal AI command center inspired by futuristic HUD interfaces (Iron Man JARVIS, Linear, Apple, Vercel).
 
@@ -8,31 +8,39 @@
 
 JARVIS is engineered to become a full-spectrum personal executive assistant combining voice intelligence, autonomous tool reasoning, computer control, and workflow integrations.
 
-### Phase 1 Focus (Current Phase)
-Phase 1 delivers the **clean architectural foundation and premium user interface**:
-- **Futuristic Command Center HUD**: Deep space black background (`#000000`), subtle borders, and emerald green (`#10B981`) accents.
-- **Animated JARVIS Core Visualizer**: Concentric orbital rings, pulsating energy core, and audio waveform frequencies reacting to 5 states (`idle`, `listening`, `thinking`, `processing`, `speaking`).
-- **Interactive State Switcher**: Built-in test controller allowing direct testing and visual verification of all JARVIS states.
-- **Cognitive Stream & Chat UI**: Message list, timestamps, typing indicators, auto-scroll, and telemetry log tracking.
-- **Truthful System Status**: Real-time inspection of subsystems clearly indicating what is `READY`, `NOT_CONNECTED`, or `COMING_SOON`.
-- **Security & Tool Permissions Catalog**: Typed schemas for planned tools with human confirmation gates on sensitive operations.
-- **Database Architecture Preparation**: PostgreSQL Prisma schema ready for multi-user context, conversation threads, and tool audits.
-- **Local Automation Bridge Contract**: Prepared client architecture for a future Windows Python automation agent.
+### Phase 2: Real AI Brain (Current Status: Complete)
+Phase 2 transforms the system into a **real AI conversational assistant powered by OpenAI**:
+- **Real AI Brain Integration**: Powered by the official OpenAI Node/TypeScript SDK with configurable model (default: `gpt-4o-mini`).
+- **Strict Persona & System Prompt**: Clear, professional, composed JARVIS persona with strict honesty boundaries. JARVIS never hallucinates executing tools or opening applications that have not run.
+- **Secure Server-Side AI Layer**: `src/app/api/chat/route.ts` validates incoming payloads with Zod, tracks unique `requestId`s, handles abuse/rate limits, and never exposes keys or raw errors.
+- **Connected Visualizer States**: Live state synchronization: User sends -> `THINKING` -> `PROCESSING` -> `IDLE` upon response receipt.
+- **Graceful Error Handling & Fallbacks**: If `OPENAI_API_KEY` is missing or invalid, the app remains fully responsive and returns clean, typed user-facing status messages without crashing.
+- **Strict TypeScript Architecture**: 100% strict TypeScript/TSX across all components, API routes, contracts, and test suites.
 
 ---
 
-## 2. What Is NOT Implemented in Phase 1
+## 2. Implemented Capabilities vs. Intentionally Deferred Capabilities
 
-To maintain engineering discipline and prevent untested or hazardous functionality, the following are **intentionally deferred to subsequent phases**:
-- ❌ Live OpenAI API calls / LLM responses (Phase 2)
-- ❌ Realtime WebRTC voice audio streaming (Phase 2)
-- ❌ PostgreSQL / Vector database connection (Phase 2)
+### Implemented Capabilities (Phase 1 & Phase 2)
+- ✅ Real OpenAI conversational intelligence and multi-turn chat
+- ✅ Strict system instruction enforcing persona and truthfulness
+- ✅ Animated HUD visualizer with state transitions (`idle`, `thinking`, `processing`)
+- ✅ Strict request validation (4000 character limit, non-empty, JSON schema)
+- ✅ In-memory rate limiting and abuse mitigation
+- ✅ Structured logging with automatic secret redaction
+- ✅ Subsystem health monitoring reflecting live AI engine status
+
+### Intentionally Deferred Capabilities
+To maintain engineering discipline and prevent untested or hazardous functionality, the following are **strictly deferred to subsequent phases**:
+- ❌ Local Windows computer control / opening apps (Phase 4)
+- ❌ Python local automation agent execution (Phase 4)
 - ❌ Browser automation & web crawling (Phase 3)
-- ❌ WhatsApp, Email, Calendar integrations (Phase 3/4)
-- ❌ Local Windows computer control / Python service execution (Phase 4)
-- ❌ Unrestricted shell / terminal command execution (Strictly guarded)
+- ❌ Realtime WebRTC voice audio streaming (Voice Phase)
+- ❌ WhatsApp, Email, Calendar external integrations (Phase 4)
+- ❌ Persistent PostgreSQL database conversation storage (Database Phase)
+- ❌ Unrestricted shell / terminal command execution (Guarded)
 
-All UI elements representing deferred features are clearly marked with badges like `NOT CONNECTED`, `COMING SOON`, or `SIMULATION MODE`.
+All UI elements representing deferred features are clearly marked with badges like `NOT CONNECTED` or `COMING SOON`. JARVIS explicitly clarifies that these actions are not yet connected if prompted.
 
 ---
 
@@ -162,6 +170,6 @@ npm run build
 ## 7. Roadmap
 
 - **Phase 1 (Complete)**: Clean architecture, HUD UI, animated visualizer, tool catalog, telemetry foundation.
-- **Phase 2**: OpenAI Agents SDK integration, live reasoning, vector memory, WebRTC voice streaming.
+- **Phase 2 (Complete)**: Real AI brain, OpenAI agent integration, strict persona & honesty boundaries, safe error handling, rate limiting.
 - **Phase 3**: Autonomous tasks, web search, code analysis, browser automation.
 - **Phase 4**: Python Windows automation agent, terminal integration, WhatsApp, and email connectors.
