@@ -8,23 +8,28 @@
 
 JARVIS is engineered to become a full-spectrum personal executive assistant combining voice intelligence, autonomous tool reasoning, computer control, and workflow integrations.
 
-### Phase 2: Real AI Brain (Current Status: Complete)
-Phase 2 transforms the system into a **real AI conversational assistant powered by OpenAI**:
-- **Real AI Brain Integration**: Powered by the official OpenAI Node/TypeScript SDK with configurable model (default: `gpt-4o-mini`).
-- **Strict Persona & System Prompt**: Clear, professional, composed JARVIS persona with strict honesty boundaries. JARVIS never hallucinates executing tools or opening applications that have not run.
-- **Secure Server-Side AI Layer**: `src/app/api/chat/route.ts` validates incoming payloads with Zod, tracks unique `requestId`s, handles abuse/rate limits, and never exposes keys or raw errors.
-- **Connected Visualizer States**: Live state synchronization: User sends -> `THINKING` -> `PROCESSING` -> `IDLE` upon response receipt.
-- **Graceful Error Handling & Fallbacks**: If `OPENAI_API_KEY` is missing or invalid, the app remains fully responsive and returns clean, typed user-facing status messages without crashing.
-- **Strict TypeScript Architecture**: 100% strict TypeScript/TSX across all components, API routes, contracts, and test suites.
+### Phase 3: Realtime Voice Interaction (Current Status: Complete)
+Phase 3 establishes natural voice communication between the operator and JARVIS:
+- **Dedicated Voice Layer (`src/voice/`)**: Decoupled voice engine featuring modular client, providers, and state interfaces.
+- **Provider Abstraction**: Pluggable architecture supporting browser-native speech recognition/synthesis alongside future provider engines.
+- **Microphone Capture & Audio Analysis**: Safe browser microphone permission handling, track cleanup, and live Web Audio API analyser calculating normalized audio levels without storing raw audio.
+- **Connected Visualizer Core**: `JarvisCore` visualizer reacts dynamically to microphone amplitude during `LISTENING` and audio synthesis during `SPEAKING`.
+- **Speech Synthesis (TTS) & Barge-In**: Responsive text-to-speech with natural vocal pacing and immediate barge-in/interruption support (saying "stop" or typing cancels speech instantly).
+- **Dual Text & Voice Modes**: Seamless switching between text keyboard mode and realtime voice interaction using the shared conversation stream and cognitive brain.
 
 ---
 
 ## 2. Implemented Capabilities vs. Intentionally Deferred Capabilities
 
-### Implemented Capabilities (Phase 1 & Phase 2)
-- ✅ Real OpenAI conversational intelligence and multi-turn chat
+### Implemented Capabilities (Phase 1, Phase 2 & Phase 3)
+- ✅ Google Gemini (Primary) & OpenAI (Optional) AI cognitive brain integration
+- ✅ Dedicated voice engine layer (`src/voice/`) with Web Audio API analyser
+- ✅ Realtime speech-to-text (STT) and text-to-speech (TTS)
+- ✅ Audio-reactive HUD visualizer with live waveform amplitude
+- ✅ Barge-in and speech interruption support
+- ✅ Dual Text / Voice interaction modes with shared conversation memory
 - ✅ Strict system instruction enforcing persona and truthfulness
-- ✅ Animated HUD visualizer with state transitions (`idle`, `thinking`, `processing`)
+- ✅ Animated HUD visualizer with state transitions (`idle`, `listening`, `thinking`, `processing`, `speaking`)
 - ✅ Strict request validation (4000 character limit, non-empty, JSON schema)
 - ✅ In-memory rate limiting and abuse mitigation
 - ✅ Structured logging with automatic secret redaction
@@ -34,8 +39,7 @@ Phase 2 transforms the system into a **real AI conversational assistant powered 
 To maintain engineering discipline and prevent untested or hazardous functionality, the following are **strictly deferred to subsequent phases**:
 - ❌ Local Windows computer control / opening apps (Phase 4)
 - ❌ Python local automation agent execution (Phase 4)
-- ❌ Browser automation & web crawling (Phase 3)
-- ❌ Realtime WebRTC voice audio streaming (Voice Phase)
+- ❌ Browser automation & web crawling (Phase 4)
 - ❌ WhatsApp, Email, Calendar external integrations (Phase 4)
 - ❌ Persistent PostgreSQL database conversation storage (Database Phase)
 - ❌ Unrestricted shell / terminal command execution (Guarded)

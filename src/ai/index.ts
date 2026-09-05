@@ -2,3 +2,4 @@
 export * from "./agents/base";
 export * from "./agents/jarvis";
 export * from "./prompts/jarvis-system";
+export * from "./providers";

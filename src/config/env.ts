@@ -4,7 +4,10 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   
-  // AI Engine Configuration (Phase 2)
+  // AI Engine Configuration (Phase 2 & Phase 3)
+  GEMINI_API_KEY: z.string().optional(),
+  GEMINI_MODEL: z.string().default("gemini-3.8-flash"),
+  GEMINI_LIVE_MODEL: z.string().default("gemini-2.5-flash-native-audio-latest"),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   
@@ -25,6 +28,9 @@ function validateEnv(): EnvConfig {
   const parsed = envSchema.safeParse({
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    GEMINI_MODEL: process.env.GEMINI_MODEL || "gemini-3.8-flash",
+    GEMINI_LIVE_MODEL: process.env.GEMINI_LIVE_MODEL || "gemini-2.5-flash-native-audio-latest",
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_MODEL: process.env.OPENAI_MODEL || "gpt-4o-mini",
     DATABASE_URL: process.env.DATABASE_URL,

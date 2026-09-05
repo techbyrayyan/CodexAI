@@ -24,7 +24,16 @@ export class SystemStatusService {
    */
   static getSystemHealth(): FullSystemHealth {
     const now = Date.now();
-    const isAiConfigured = Boolean(env.OPENAI_API_KEY && env.OPENAI_API_KEY.trim().length > 0);
+    const isGeminiConfigured = Boolean(env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 0);
+    const isOpenAiConfigured = Boolean(env.OPENAI_API_KEY && env.OPENAI_API_KEY.trim().length > 0);
+    const isAiConfigured = isGeminiConfigured || isOpenAiConfigured;
+    const aiLabel = isGeminiConfigured
+      ? `Gemini Connected (${env.GEMINI_MODEL || "gemini-3.8-flash"})`
+      : isOpenAiConfigured
+      ? `OpenAI Connected (${env.OPENAI_MODEL || "gpt-4o-mini"})`
+      : "Not Configured";
+
+    const isVoiceConfigured = isGeminiConfigured;
 
     const subsystems: SubsystemStatus[] = [
       {
@@ -39,18 +48,20 @@ export class SystemStatusService {
         id: "ai_engine",
         name: "AI Engine",
         code: isAiConfigured ? "READY" : "NOT_CONNECTED",
-        label: isAiConfigured ? "OpenAI Connected" : "Not Configured",
+        label: aiLabel,
         description: isAiConfigured
-          ? `OpenAI conversational reasoning engine active (${env.OPENAI_MODEL}).`
-          : "Set OPENAI_API_KEY in server environment to enable live AI reasoning.",
+          ? `Primary conversational reasoning engine active.`
+          : "Configure GEMINI_API_KEY in server environment to enable live AI reasoning.",
         lastChecked: now,
       },
       {
         id: "voice_engine",
         name: "Voice Engine",
-        code: "NOT_CONNECTED",
-        label: "Not Connected",
-        description: "Realtime WebRTC/audio streaming synthesizer (Phase 2).",
+        code: isVoiceConfigured ? "READY" : "NOT_CONNECTED",
+        label: isVoiceConfigured ? "Gemini Live Voice Active" : "Not Configured",
+        description: isVoiceConfigured
+          ? `Realtime bidirectional audio engine active (${env.GEMINI_LIVE_MODEL || "gemini-2.5-flash-native-audio-latest"}).`
+          : "Configure GEMINI_API_KEY to enable Gemini Live bidirectional voice.",
         lastChecked: now,
       },
       {

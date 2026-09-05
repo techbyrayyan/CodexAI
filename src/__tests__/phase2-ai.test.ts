@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import OpenAI from "openai";
+import { describe, it, expect, vi } from "vitest";
 import { z } from "zod";
 import {
   JarvisAgent,
@@ -7,25 +6,31 @@ import {
   JarvisAuthError,
   JarvisRateLimitError,
 } from "../ai/agents/jarvis";
+import {
+  GeminiProvider,
+  OpenAIProvider,
+  AIProviderConfigError,
+} from "../ai/providers";
 import { JARVIS_SYSTEM_PROMPT } from "../ai/prompts/jarvis-system";
 import { ChatApiRequest, ChatApiResponse, ChatApiErrorResponse } from "../ai/types";
 
-describe("JARVIS Phase 2 AI Brain & OpenAI Agent Integration", () => {
+describe("JARVIS Phase 2 AI Brain & Provider Integration (Gemini & OpenAI)", () => {
   describe("1. Environment & Configuration", () => {
-    it("handles unconfigured OPENAI_API_KEY safely without crashing", () => {
-      // Create agent instance without client or key
-      const unconfiguredAgent = new JarvisAgent(undefined, "gpt-4o-mini");
-      expect(unconfiguredAgent).toBeInstanceOf(JarvisAgent);
+    it("instantiates JarvisAgent with default providers safely", () => {
+      const agent = new JarvisAgent();
+      expect(agent).toBeInstanceOf(JarvisAgent);
     });
 
-    it("throws JarvisConfigError when process() is invoked without API key", async () => {
-      // Create fresh agent with no client and ensure key is absent
-      const unconfiguredAgent = new JarvisAgent(undefined, "gpt-4o-mini");
-      // Force client to be null
-      (unconfiguredAgent as unknown as { client: null }).client = null;
+    it("throws JarvisConfigError when process() is called without configured keys", async () => {
+      const mockUnconfiguredProvider = {
+        name: "gemini",
+        isConfigured: false,
+        generate: vi.fn().mockRejectedValue(new AIProviderConfigError("Key missing")),
+      };
+      const agent = new JarvisAgent(mockUnconfiguredProvider);
 
       await expect(
-        unconfiguredAgent.process("Hello Jarvis", {
+        agent.process("Hello Jarvis", {
           sessionId: "test-session",
           activeRole: "orchestrator",
           systemPrompt: "Test",
@@ -94,46 +99,28 @@ describe("JARVIS Phase 2 AI Brain & OpenAI Agent Integration", () => {
     });
   });
 
-  describe("3. Mocked OpenAI Agent Execution", () => {
-    let mockOpenAI: OpenAI;
-
-    beforeEach(() => {
-      mockOpenAI = {
-        chat: {
-          completions: {
-            create: vi.fn(),
-          },
-        },
-      } as unknown as OpenAI;
-    });
-
-    it("successfully calls OpenAI and returns structured AgentResponse", async () => {
-      const mockCreate = vi.fn().mockResolvedValue({
-        id: "chatcmpl-test123",
-        model: "gpt-4o-mini",
-        choices: [
-          {
-            message: {
-              role: "assistant",
-              content: "Greetings, operator. Systems are functioning within nominal parameters.",
+  describe("3. Mocked GeminiProvider Execution", () => {
+    it("successfully delegates to GeminiProvider and returns structured AgentResponse", async () => {
+      const mockGeminiClient = {
+        models: {
+          generateContent: vi.fn().mockResolvedValue({
+            text: "Greetings, operator. Systems are functioning within nominal parameters.",
+            usageMetadata: {
+              promptTokenCount: 20,
+              candidatesTokenCount: 15,
+              totalTokenCount: 35,
             },
-            finish_reason: "stop",
-          },
-        ],
-        usage: {
-          prompt_tokens: 28,
-          completion_tokens: 15,
-          total_tokens: 43,
+          }),
         },
-      });
+      };
 
-      mockOpenAI.chat.completions.create = mockCreate;
+      const provider = new GeminiProvider(mockGeminiClient as unknown as import("@google/genai").GoogleGenAI, "gemini-3.8-flash");
+      const agent = new JarvisAgent(provider);
 
-      const agent = new JarvisAgent(mockOpenAI, "gpt-4o-mini");
       const result = await agent.process(
         "Status report",
         {
-          sessionId: "req-test-1",
+          sessionId: "req-gemini-1",
           activeRole: "orchestrator",
           systemPrompt: JARVIS_SYSTEM_PROMPT,
           memoryEnabled: false,
@@ -141,30 +128,32 @@ describe("JARVIS Phase 2 AI Brain & OpenAI Agent Integration", () => {
         [{ role: "user", content: "Hello" }]
       );
 
-      expect(mockCreate).toHaveBeenCalledTimes(1);
+      expect(mockGeminiClient.models.generateContent).toHaveBeenCalledTimes(1);
       expect(result.message.role).toBe("assistant");
       expect(result.message.content).toBe(
         "Greetings, operator. Systems are functioning within nominal parameters."
       );
       expect(result.state).toBe("idle");
-      expect(result.usage?.totalTokens).toBe(43);
-      expect(result.requestId).toBe("req-test-1");
+      expect(result.usage?.totalTokens).toBe(35);
+      expect(result.requestId).toBe("req-gemini-1");
     });
 
-    it("translates OpenAI.AuthenticationError into JarvisAuthError", async () => {
-      const authError = new OpenAI.AuthenticationError(
-        401,
-        { message: "Incorrect API key provided" },
-        "Incorrect API key provided",
-        new Headers()
-      );
+    it("translates Gemini authentication errors into JarvisAuthError", async () => {
+      const mockGeminiClient = {
+        models: {
+          generateContent: vi.fn().mockRejectedValue({
+            status: 401,
+            message: "API_KEY_INVALID: API key not valid.",
+          }),
+        },
+      };
 
-      mockOpenAI.chat.completions.create = vi.fn().mockRejectedValue(authError);
+      const provider = new GeminiProvider(mockGeminiClient as unknown as import("@google/genai").GoogleGenAI);
+      const agent = new JarvisAgent(provider);
 
-      const agent = new JarvisAgent(mockOpenAI);
       await expect(
         agent.process("Test prompt", {
-          sessionId: "req-test-2",
+          sessionId: "req-gemini-2",
           activeRole: "orchestrator",
           systemPrompt: "Test",
           memoryEnabled: false,
@@ -172,20 +161,22 @@ describe("JARVIS Phase 2 AI Brain & OpenAI Agent Integration", () => {
       ).rejects.toThrow(JarvisAuthError);
     });
 
-    it("translates OpenAI.RateLimitError into JarvisRateLimitError", async () => {
-      const rateLimitError = new OpenAI.RateLimitError(
-        429,
-        { message: "Rate limit exceeded" },
-        "Rate limit exceeded",
-        new Headers()
-      );
+    it("translates Gemini rate limit / quota errors into JarvisRateLimitError", async () => {
+      const mockGeminiClient = {
+        models: {
+          generateContent: vi.fn().mockRejectedValue({
+            status: 429,
+            message: "RESOURCE_EXHAUSTED: Quota exceeded",
+          }),
+        },
+      };
 
-      mockOpenAI.chat.completions.create = vi.fn().mockRejectedValue(rateLimitError);
+      const provider = new GeminiProvider(mockGeminiClient as unknown as import("@google/genai").GoogleGenAI);
+      const agent = new JarvisAgent(provider);
 
-      const agent = new JarvisAgent(mockOpenAI);
       await expect(
         agent.process("Test prompt", {
-          sessionId: "req-test-3",
+          sessionId: "req-gemini-3",
           activeRole: "orchestrator",
           systemPrompt: "Test",
           memoryEnabled: false,
@@ -194,7 +185,36 @@ describe("JARVIS Phase 2 AI Brain & OpenAI Agent Integration", () => {
     });
   });
 
-  describe("4. API Response Contract Shapes", () => {
+  describe("4. Mocked OpenAIProvider Execution (Optional Provider)", () => {
+    it("successfully delegates to OpenAIProvider", async () => {
+      const mockOpenAIClient = {
+        chat: {
+          completions: {
+            create: vi.fn().mockResolvedValue({
+              id: "chatcmpl-test",
+              choices: [{ message: { content: "OpenAI response" } }],
+              usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+            }),
+          },
+        },
+      };
+
+      const provider = new OpenAIProvider(mockOpenAIClient as unknown as import("openai").default);
+      const agent = new JarvisAgent(provider);
+
+      const result = await agent.process("Hello", {
+        sessionId: "req-openai-1",
+        activeRole: "orchestrator",
+        systemPrompt: "Test",
+        memoryEnabled: false,
+      });
+
+      expect(result.message.content).toBe("OpenAI response");
+      expect(result.usage?.totalTokens).toBe(15);
+    });
+  });
+
+  describe("5. API Response Contract Shapes", () => {
     it("conforms to typed success response contract", () => {
       const successData: ChatApiResponse = {
         success: true,
@@ -231,7 +251,7 @@ describe("JARVIS Phase 2 AI Brain & OpenAI Agent Integration", () => {
     });
   });
 
-  describe("5. System Prompt & Honesty Boundaries", () => {
+  describe("6. System Prompt & Honesty Boundaries", () => {
     it("includes explicit instructions disclaiming unperformed actions and computer control", () => {
       expect(JARVIS_SYSTEM_PROMPT).toContain("Just A Rather Very Intelligent System");
       expect(JARVIS_SYSTEM_PROMPT).toContain("Do NOT claim you opened, launched, or closed applications");

@@ -15,7 +15,10 @@ const initialMessages: ChatMessage[] = [
   },
 ];
 
-export function useChat(onStateChange: (state: JarvisState) => void) {
+export function useChat(
+  onStateChange: (state: JarvisState) => void,
+  onResponseSuccess?: (text: string) => void
+) {
   const [messages, setMessages] = React.useState<ChatMessage[]>(initialMessages);
   const [isProcessing, setIsProcessing] = React.useState(false);
 
@@ -77,6 +80,7 @@ export function useChat(onStateChange: (state: JarvisState) => void) {
           };
 
           setMessages((prev) => [...prev, assistantMsg]);
+          onResponseSuccess?.(data.message);
 
           activityLogger.logEvent({
             category: "ai",
@@ -127,7 +131,7 @@ export function useChat(onStateChange: (state: JarvisState) => void) {
         setIsProcessing(false);
       }
     },
-    [isProcessing, messages, onStateChange]
+    [isProcessing, messages, onStateChange, onResponseSuccess]
   );
 
   return {

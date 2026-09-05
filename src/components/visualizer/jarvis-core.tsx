@@ -8,10 +8,11 @@ import { cn } from "@/lib/utils";
 interface JarvisCoreProps {
   state: JarvisState;
   onStateChange?: (newState: JarvisState) => void;
+  audioLevel?: number; // 0.0 to 1.0 from real microphone
   className?: string;
 }
 
-export function JarvisCore({ state, onStateChange, className }: JarvisCoreProps) {
+export function JarvisCore({ state, onStateChange, audioLevel = 0, className }: JarvisCoreProps) {
   // State configuration details
   const stateMeta: Record<
     JarvisState,
@@ -152,28 +153,31 @@ export function JarvisCore({ state, onStateChange, className }: JarvisCoreProps)
         {/* Center Waveform / Audio Frequency ring (Active during Speaking & Listening) */}
         <div className="absolute h-36 w-36 flex items-center justify-center">
           <div className="flex items-center gap-1">
-            {barHeights.slice(0, 10).map((h, idx) => (
-              <motion.div
-                key={idx}
-                animate={
-                  state === "speaking"
-                    ? { height: [8, h * 0.45, 12, h * 0.3, 8] }
-                    : state === "listening"
-                    ? { height: [6, 20, 6] }
-                    : { height: [4, 8, 4] }
-                }
-                transition={{
-                  duration: state === "speaking" ? 0.6 + (idx % 3) * 0.15 : 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: idx * 0.05,
-                }}
-                className="w-1 rounded-full bg-emerald-400/70"
-                style={{
-                  minHeight: "4px",
-                }}
-              />
-            ))}
+            {barHeights.slice(0, 10).map((h, idx) => {
+              const liveFactor = Math.max(0.2, audioLevel * 1.5);
+              return (
+                <motion.div
+                  key={idx}
+                  animate={
+                    state === "speaking"
+                      ? { height: [8, h * 0.45, 12, h * 0.3, 8] }
+                      : state === "listening"
+                      ? { height: [6, Math.max(12, 40 * liveFactor), 6] }
+                      : { height: [4, 8, 4] }
+                  }
+                  transition={{
+                    duration: state === "speaking" ? 0.6 + (idx % 3) * 0.15 : state === "listening" ? 0.4 : 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: idx * 0.04,
+                  }}
+                  className="w-1 rounded-full bg-emerald-400/70"
+                  style={{
+                    minHeight: "4px",
+                  }}
+                />
+              );
+            })}
           </div>
         </div>
 

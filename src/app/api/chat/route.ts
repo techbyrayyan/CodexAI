@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: {
           code: "CONFIG_ERROR",
-          message: "JARVIS is currently unavailable. Please check the AI configuration (OPENAI_API_KEY).",
+          message: error.message || "JARVIS is currently unavailable. Please check the AI configuration (GEMINI_API_KEY).",
         },
         requestId,
       };
